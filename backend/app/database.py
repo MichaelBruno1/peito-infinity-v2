@@ -1,9 +1,12 @@
 from collections.abc import Generator
-from sqlalchemy import create_engine
+import logging
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.config import settings
 
+logger = logging.getLogger(__name__)
 
 connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
 
@@ -18,6 +21,35 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 class Base(DeclarativeBase):
     pass
+
+
+def ensure_database_exists() -> None:
+    """
+    Garante que o banco de dados (`DB_NAME`, ex: `peito_infinity`) exista na instância
+    PostgreSQL compartilhada antes de executar as migrações e o seed inicial.
+    """
+    if settings.database_url.startswith("sqlite"):
+        return
+
+    try:
+        url = make_url(settings.database_url)
+        target_db = url.database
+        if not target_db:
+            return
+
+        admin_url = url.set(database="postgres")
+        admin_engine = create_engine(admin_url, isolation_level="AUTOCOMMIT")
+        with admin_engine.connect() as conn:
+            exists = conn.execute(
+                text("SELECT 1 FROM pg_database WHERE datname = :dbname"),
+                {"dbname": target_db},
+            ).scalar()
+            if not exists:
+                logger.info("Creating database '%s' on external PostgreSQL server...", target_db)
+                conn.execute(text(f'CREATE DATABASE "{target_db}"'))
+        admin_engine.dispose()
+    except Exception as exc:
+        logger.warning("Could not verify/auto-create database '%s': %s", settings.db_name, exc)
 
 
 def get_db() -> Generator[Session, None, None]:
