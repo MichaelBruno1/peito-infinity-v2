@@ -1,0 +1,99 @@
+# =============================================================================
+# 1. Variáveis de Ambiente e Segredos
+# =============================================================================
+.env
+.env.*
+!.env.example
+
+# =============================================================================
+# 2. Python / FastAPI / Testes (Back-end)
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Ambientes Virtuais
+.venv/
+venv/
+ENV/
+env/
+
+# Pytest / Coverage / Type Checkers
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+
+# Banco local de testes (SQLite)
+*.db
+*.sqlite
+*.sqlite3
+
+# =============================================================================
+# 3. Node.js / React / Vite (Front-end)
+# =============================================================================
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vite/
+*.local
+
+# Logs de gerenciadores de pacotes
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# =============================================================================
+# 4. Docker & Dados Locais de Volumes
+# =============================================================================
+postgres_data/
+pgdata/
+docker-volumes/
+
+# =============================================================================
+# 5. IDEs, Editores e Sistema Operacional
+# =============================================================================
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# macOS / Linux
+.DS_Store
+.AppleDouble
+.LSOverride
