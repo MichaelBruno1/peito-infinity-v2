@@ -1,5 +1,6 @@
 from pathlib import Path
 from dotenv import dotenv_values
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -8,7 +9,13 @@ DEFAULT_SEED_FILE = DEFAULT_REPO_ROOT / "specs" / "data" / "guia-exercicios-seed
 
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql+psycopg://peito_user:peito_secret_lan@localhost:5432/peito_infinity"
+    db_host: str = "postgres"
+    db_user: str = "postgres"
+    db_password: str = "postgres"
+    db_name: str = "peito_infinity"
+    db_port: int = 5432
+    database_url: str = ""
+
     seed_file_path: str = str(DEFAULT_SEED_FILE)
     llm_provider: str = "specialist_engine"
     llm_model: str = "gpt-4o-mini"
@@ -21,6 +28,15 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    @model_validator(mode="after")
+    def assemble_database_url(self) -> "Settings":
+        if not self.database_url:
+            self.database_url = (
+                f"postgresql+psycopg://{self.db_user}:{self.db_password}"
+                f"@{self.db_host}:{self.db_port}/{self.db_name}"
+            )
+        return self
 
 
 settings = Settings()
@@ -52,8 +68,6 @@ def get_runtime_llm_config() -> dict[str, str]:
         or current.ollama_base_url
     ).strip()
 
-    # Se estiver rodando dentro de um container Docker e a URL apontar para 127.0.0.1 / localhost,
-    # redireciona automaticamente para host.docker.internal para alcançar o LM Studio / Ollama no host.
     if Path("/.dockerenv").exists() and base_url:
         base_url = base_url.replace("://127.0.0.1", "://host.docker.internal").replace(
             "://localhost", "://host.docker.internal"
