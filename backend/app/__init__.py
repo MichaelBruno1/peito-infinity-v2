@@ -1,0 +1,1 @@
+"""Peito Infinity Backend Application."""
