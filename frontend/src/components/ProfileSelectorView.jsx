@@ -10,6 +10,7 @@ import {
   Trash2,
   Edit3,
   Database,
+  RefreshCw,
 } from 'lucide-react';
 
 const GOAL_INFO = {
@@ -38,6 +39,9 @@ const LEVEL_LABELS = {
 
 export default function ProfileSelectorView({
   profiles,
+  isLoading = false,
+  isError = false,
+  onRetry,
   exercisesCount,
   onSelectProfile,
   onOpenCreateProfile,
@@ -85,7 +89,27 @@ export default function ProfileSelectorView({
           </h2>
         </div>
 
-        {profiles.length === 0 ? (
+        {isLoading && profiles.length === 0 ? (
+          <div className="rounded-3xl border border-slate-800 bg-slate-900/50 p-10 sm:p-14 text-center text-slate-400 text-sm">
+            Carregando perfis de usuário...
+          </div>
+        ) : isError && profiles.length === 0 ? (
+          <div className="rounded-3xl border border-rose-500/30 bg-slate-900/50 p-10 sm:p-14 text-center space-y-4">
+            <p className="text-sm text-rose-300">
+              Erro ao carregar os perfis de usuário da API.
+            </p>
+            {onRetry && (
+              <button
+                type="button"
+                onClick={onRetry}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition-colors"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Tentar Novamente</span>
+              </button>
+            )}
+          </div>
+        ) : profiles.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-slate-800 bg-slate-900/50 p-10 sm:p-14 text-center space-y-4">
             <div className="w-16 h-16 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center mx-auto text-orange-400">
               <Dumbbell className="w-8 h-8" />

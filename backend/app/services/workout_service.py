@@ -22,6 +22,7 @@ from app.schemas import (
     WorkoutPlanResponse,
 )
 from app.services.llm_workout_agent import workout_llm_agent
+from app.services.seed_service import seed_exercises_if_empty
 
 
 def compute_bmi(weight_kg: float, height_cm: float) -> float:
@@ -155,6 +156,7 @@ def fetch_allowed_exercises(
     db: Session,
     excluded_exercise_ids: list[uuid.UUID],
 ) -> list[Exercise]:
+    seed_exercises_if_empty(db)
     stmt = select(Exercise).order_by(Exercise.group_order, Exercise.efficiency_score.desc())
     if excluded_exercise_ids:
         stmt = stmt.where(Exercise.id.notin_(excluded_exercise_ids))

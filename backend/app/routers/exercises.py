@@ -10,6 +10,7 @@ from app.schemas import (
     ExerciseGroupResponse,
     ExerciseResponse,
 )
+from app.services.seed_service import seed_exercises_if_empty
 
 router = APIRouter(prefix="/exercises", tags=["Exercises"])
 
@@ -21,6 +22,7 @@ def list_exercises(
     search: str | None = Query(default=None),
     db: Session = Depends(get_db),
 ) -> ExerciseCatalogResponse:
+    seed_exercises_if_empty(db)
     stmt = select(Exercise).order_by(Exercise.group_order, Exercise.efficiency_score.desc(), Exercise.popular_name)
 
     if muscle_group:

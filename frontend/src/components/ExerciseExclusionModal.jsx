@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   X,
   Search,
@@ -8,6 +8,7 @@ import {
   Filter,
   RotateCcw,
   Star,
+  RefreshCw,
 } from 'lucide-react';
 
 const COMPLEXITY_BADGE = {
@@ -16,12 +17,17 @@ const COMPLEXITY_BADGE = {
   ALTA: { label: '🔴 Alta', classes: 'bg-rose-500/15 text-rose-300 border-rose-500/30' },
 };
 
+const EMPTY_IDS = [];
+
 export default function ExerciseExclusionModal({
   isOpen,
   onClose,
   onConfirmGenerate,
   exerciseCatalog,
-  initialExcludedIds = [],
+  isLoadingExercises = false,
+  onRetryLoadExercises,
+  profileId = null,
+  initialExcludedIds = EMPTY_IDS,
   generationMode = 'FULL', // 'FULL' | 'SINGLE_DAY'
   targetDayNumber = null,
   isGenerating = false,
@@ -31,16 +37,23 @@ export default function ExerciseExclusionModal({
   const [selectedGroup, setSelectedGroup] = useState('ALL');
   const [selectedComplexity, setSelectedComplexity] = useState('ALL');
   const [errorMsg, setErrorMsg] = useState('');
+  const wasOpenRef = useRef(false);
+  const lastProfileIdRef = useRef(null);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && (!wasOpenRef.current || lastProfileIdRef.current !== profileId)) {
       setExcludedSet(new Set(initialExcludedIds || []));
       setSearchQuery('');
       setSelectedGroup('ALL');
       setSelectedComplexity('ALL');
       setErrorMsg('');
+      if (!exerciseCatalog?.groups?.length && onRetryLoadExercises) {
+        onRetryLoadExercises();
+      }
     }
-  }, [isOpen, initialExcludedIds]);
+    wasOpenRef.current = isOpen;
+    lastProfileIdRef.current = profileId;
+  }, [isOpen, profileId, initialExcludedIds, exerciseCatalog, onRetryLoadExercises]);
 
   const groups = exerciseCatalog?.groups || [];
   const totalExercises = exerciseCatalog?.total || 0;
@@ -183,7 +196,27 @@ export default function ExerciseExclusionModal({
 
         {/* Exercise List from PostgreSQL */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1">
-          {filteredGroups.length === 0 ? (
+          {isLoadingExercises && groups.length === 0 ? (
+            <div className="text-center py-10 text-slate-400 text-sm">
+              Carregando catálogo de exercícios do banco de dados...
+            </div>
+          ) : groups.length === 0 ? (
+            <div className="text-center py-10 space-y-3">
+              <p className="text-slate-400 text-sm">
+                Não foi possível carregar o catálogo de exercícios no momento.
+              </p>
+              {onRetryLoadExercises && (
+                <button
+                  type="button"
+                  onClick={onRetryLoadExercises}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition-colors"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Recarregar Exercícios</span>
+                </button>
+              )}
+            </div>
+          ) : filteredGroups.length === 0 ? (
             <div className="text-center py-10 text-slate-400 text-sm">
               Nenhum exercício encontrado para o filtro informado.
             </div>

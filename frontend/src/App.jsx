@@ -7,6 +7,8 @@ import WorkoutDashboardView from './components/WorkoutDashboardView.jsx';
 import ProfileFormModal from './components/ProfileFormModal.jsx';
 import ExerciseExclusionModal from './components/ExerciseExclusionModal.jsx';
 
+const EMPTY_EXCLUDED_IDS = [];
+
 export default function App() {
   const queryClient = useQueryClient();
   const [selectedProfileId, setSelectedProfileId] = useState(null);
@@ -54,7 +56,14 @@ export default function App() {
   const createProfileMutation = useMutation({
     mutationFn: api.createProfile,
     onSuccess: (created) => {
+      queryClient.setQueryData(['profile', created.id], created);
+      queryClient.setQueryData(['profiles'], (old) =>
+        Array.isArray(old) ? [created, ...old.filter((p) => p.id !== created.id)] : [created]
+      );
       queryClient.invalidateQueries({ queryKey: ['profiles'] });
+      if (!exercisesQuery.data?.groups?.length) {
+        exercisesQuery.refetch();
+      }
       setProfileModalState({ isOpen: false, editingProfile: null });
       setSelectedProfileId(created.id);
       showToast(`Perfil "${created.name}" criado com sucesso!`);
@@ -64,6 +73,7 @@ export default function App() {
   const updateProfileMutation = useMutation({
     mutationFn: ({ id, payload }) => api.updateProfile(id, payload),
     onSuccess: (updated) => {
+      queryClient.setQueryData(['profile', updated.id], updated);
       queryClient.invalidateQueries({ queryKey: ['profiles'] });
       queryClient.invalidateQueries({ queryKey: ['profile', updated.id] });
       setProfileModalState({ isOpen: false, editingProfile: null });
@@ -184,8 +194,16 @@ export default function App() {
         {!selectedProfileId ? (
           <ProfileSelectorView
             profiles={profilesQuery.data || []}
-            exercisesCount={healthQuery.data?.exercises_count || exercisesQuery.data?.total || 89}
-            onSelectProfile={(id) => setSelectedProfileId(id)}
+            isLoading={profilesQuery.isLoading}
+            isError={profilesQuery.isError}
+            onRetry={() => profilesQuery.refetch()}
+            exercisesCount={healthQuery.data?.exercises_count || exercisesQuery.data?.total || 94}
+            onSelectProfile={(id) => {
+              if (!exercisesQuery.data?.groups?.length) {
+                exercisesQuery.refetch();
+              }
+              setSelectedProfileId(id);
+            }}
             onOpenCreateProfile={() =>
               setProfileModalState({ isOpen: true, editingProfile: null })
             }
@@ -205,16 +223,22 @@ export default function App() {
             onOpenEditProfile={(prof) =>
               setProfileModalState({ isOpen: true, editingProfile: prof })
             }
-            onRequestGenerateFull={() =>
-              setExclusionModalState({ isOpen: true, mode: 'FULL', dayNumber: null })
-            }
-            onRequestRegenerateDay={(dayNum) =>
+            onRequestGenerateFull={() => {
+              if (!exercisesQuery.data?.groups?.length || exercisesQuery.isError) {
+                exercisesQuery.refetch();
+              }
+              setExclusionModalState({ isOpen: true, mode: 'FULL', dayNumber: null });
+            }}
+            onRequestRegenerateDay={(dayNum) => {
+              if (!exercisesQuery.data?.groups?.length || exercisesQuery.isError) {
+                exercisesQuery.refetch();
+              }
               setExclusionModalState({
                 isOpen: true,
                 mode: 'SINGLE_DAY',
                 dayNumber: dayNum,
-              })
-            }
+              });
+            }}
           />
         )}
       </main>
@@ -241,7 +265,10 @@ export default function App() {
         }
         onConfirmGenerate={handleConfirmGenerate}
         exerciseCatalog={exercisesQuery.data}
-        initialExcludedIds={currentProfile?.excluded_exercise_ids || []}
+        isLoadingExercises={exercisesQuery.isLoading || exercisesQuery.isFetching}
+        onRetryLoadExercises={() => exercisesQuery.refetch()}
+        profileId={selectedProfileId}
+        initialExcludedIds={currentProfile?.excluded_exercise_ids || EMPTY_EXCLUDED_IDS}
         generationMode={exclusionModalState.mode}
         targetDayNumber={exclusionModalState.dayNumber}
         isGenerating={
