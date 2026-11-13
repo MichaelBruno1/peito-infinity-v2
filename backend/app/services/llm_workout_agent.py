@@ -223,7 +223,7 @@ SPLIT_TEMPLATES: dict[int, tuple[str, list[tuple[str, str, list[int]]]]] = {
 
 FEMALE_SPLIT_TEMPLATES: dict[int, tuple[str, list[tuple[str, str, list[int]]]]] = {
     1: (
-        "Full Body Feminino — Ênfase Inferiores, Glúteos e Core (1 Dia/Semana)",
+        "Full Body Feminino (1 Dia/Semana)",
         [
             (
                 "Dia 1 — Full Body (Ênfase Glúteos, Pernas, Costas, Ombros e Core)",
@@ -233,7 +233,7 @@ FEMALE_SPLIT_TEMPLATES: dict[int, tuple[str, list[tuple[str, str, list[int]]]]] 
         ],
     ),
     2: (
-        "Full Body A/B Feminino — Foco Inferiores e Definição Superior (2 Dias/Semana)",
+        "Full Body A/B Feminino (2 Dias/Semana)",
         [
             (
                 "Dia 1 — Full Body A (Ênfase Quadríceps, Glúteos, Costas e Ombros)",
@@ -248,7 +248,7 @@ FEMALE_SPLIT_TEMPLATES: dict[int, tuple[str, list[tuple[str, str, list[int]]]]] 
         ],
     ),
     3: (
-        "ABA — Inferiores (Quadríceps/Glúteos) + Superiores + Glúteos/Posterior (3 Dias/Semana)",
+        "ABA Feminino — Inferiores / Superiores (3 Dias/Semana)",
         [
             (
                 "Dia 1 — Treino A: Inferiores (Foco Quadríceps, Glúteos e Panturrilhas)",
@@ -268,7 +268,7 @@ FEMALE_SPLIT_TEMPLATES: dict[int, tuple[str, list[tuple[str, str, list[int]]]]] 
         ],
     ),
     4: (
-        "Lower / Upper 2x Feminino — Ênfase Glúteos, Pernas e Linha de Cintura (4 Dias/Semana)",
+        "Lower / Upper 2x Feminino (4 Dias/Semana)",
         [
             (
                 "Dia 1 — Lower A (Inferiores: Foco Quadríceps e Glúteos)",
@@ -293,7 +293,7 @@ FEMALE_SPLIT_TEMPLATES: dict[int, tuple[str, list[tuple[str, str, list[int]]]]] 
         ],
     ),
     5: (
-        "3x Inferiores (Quadríceps / Glúteos / Posterior) + 2x Superiores (5 Dias/Semana)",
+        "Lower 3x + Upper 2x Feminino (5 Dias/Semana)",
         [
             (
                 "Dia 1 — Lower A (Foco Quadríceps e Glúteos)",
@@ -323,7 +323,7 @@ FEMALE_SPLIT_TEMPLATES: dict[int, tuple[str, list[tuple[str, str, list[int]]]]] 
         ],
     ),
     6: (
-        "Lower / Upper 3x Feminino — Alta Frequência de Glúteos e Inferiores (6 Dias/Semana)",
+        "Lower / Upper 3x Feminino (6 Dias/Semana)",
         [
             (
                 "Dia 1 — Lower A (Foco Quadríceps e Glúteos)",
@@ -358,7 +358,7 @@ FEMALE_SPLIT_TEMPLATES: dict[int, tuple[str, list[tuple[str, str, list[int]]]]] 
         ],
     ),
     7: (
-        "Lower / Upper 3x Feminino + Core & Mobilidade (7 Dias/Semana)",
+        "Lower / Upper 3x + Core Feminino (7 Dias/Semana)",
         [
             (
                 "Dia 1 — Lower A (Foco Quadríceps e Glúteos)",
@@ -667,6 +667,18 @@ def _execution_note_for(
     return "Controlar a fase excêntrica (2 a 3 segundos) valorizando o alongamento sob tensão."
 
 
+def _safe_int(value: Any, default: int) -> int:
+    if isinstance(value, bool):
+        return default
+    if isinstance(value, (int, float)):
+        return int(value)
+    if isinstance(value, str):
+        match = re.search(r"\d+", value)
+        if match:
+            return int(match.group(0))
+    return default
+
+
 def _extract_json_object(raw_text: str) -> dict[str, Any]:
     """Extrai o objeto JSON mesmo quando o LLM local envolve a resposta em blocos markdown."""
     cleaned = raw_text.strip()
@@ -837,8 +849,10 @@ class WorkoutLLMAgent:
             f"ordenadas do maior para o menor grupo muscular e por complexidade biomecânica."
         )
 
+        full_split_title = f"{split_name} — {goal_labels.get(profile.goal, profile.goal)}"[:100]
+
         return LLMWorkoutPlanSchema(
-            split_name=f"{split_name} — {goal_labels.get(profile.goal, profile.goal)}",
+            split_name=full_split_title,
             specialist_notes=specialist_notes,
             days=generated_days,
         )
@@ -977,8 +991,8 @@ class WorkoutLLMAgent:
 
         return LLMWorkoutDaySchema(
             day_number=day_number,
-            day_title=day_title,
-            target_muscles=target_muscles,
+            day_title=day_title[:100],
+            target_muscles=target_muscles[:150],
             estimated_duration_minutes=estimated_total,
             cardio_minutes=cardio_minutes,
             cardio_display_text=f"{cardio_minutes} min de cardio",
@@ -1044,13 +1058,17 @@ class WorkoutLLMAgent:
                 available_time_minutes=profile.available_time_minutes,
             )
         )
-        day_number = int(raw_day.get("day_number") or fallback_day_number)
+        day_number = max(1, min(7, _safe_int(fallback_day_number, 1)))
         day_title = str(raw_day.get("day_title") or f"Dia {day_number}").strip()[:100]
+        if len(day_title) < 3:
+            day_title = f"Dia {day_number}"
         target_muscles = str(raw_day.get("target_muscles") or "Musculação Geral").strip()[:150]
-        cardio_minutes = int(raw_day.get("cardio_minutes", cardio_default))
+        if len(target_muscles) < 3:
+            target_muscles = "Musculação Geral"
+        cardio_minutes = _safe_int(raw_day.get("cardio_minutes"), cardio_default)
         cardio_minutes = max(0, min(180, cardio_minutes))
-        est_duration = int(
-            raw_day.get("estimated_duration_minutes") or profile.available_time_minutes
+        est_duration = _safe_int(
+            raw_day.get("estimated_duration_minutes"), profile.available_time_minutes
         )
         est_duration = max(15, min(profile.available_time_minutes, est_duration))
 
@@ -1064,9 +1082,9 @@ class WorkoutLLMAgent:
             )
             if resolved_ex is None:
                 continue
-            sets_val = max(1, min(10, int(raw_ex.get("sets") or sets_default)))
-            reps_val = str(raw_ex.get("reps") or reps_default).strip()[:30]
-            rest_val = max(15, min(300, int(raw_ex.get("rest_seconds") or rest_default)))
+            sets_val = max(1, min(10, _safe_int(raw_ex.get("sets"), sets_default)))
+            reps_val = str(raw_ex.get("reps") or reps_default).strip()[:30] or reps_default
+            rest_val = max(15, min(300, _safe_int(raw_ex.get("rest_seconds"), rest_default)))
             notes_val = str(
                 raw_ex.get("execution_notes")
                 or _execution_note_for(resolved_ex, profile.goal, False)
@@ -1157,8 +1175,12 @@ class WorkoutLLMAgent:
             if isinstance(d, dict)
         ]
 
+        raw_split_name = str(raw_json.get("split_name") or "").strip()
+        if len(raw_split_name) < 3:
+            raw_split_name = split_suggestion
+
         return LLMWorkoutPlanSchema(
-            split_name=str(raw_json.get("split_name") or split_suggestion).strip()[:100],
+            split_name=raw_split_name[:100],
             specialist_notes=str(
                 raw_json.get("specialist_notes")
                 or f"Treino personalizado gerado pelo modelo LLM ({cfg['model']})."
@@ -1307,11 +1329,14 @@ class WorkoutLLMAgent:
             raise ValueError(
                 f"Número de dias gerados ({len(plan.days)}) difere de days_per_week ({profile.days_per_week})."
             )
-        sanitized_days = [
-            self._validate_and_sanitize_day(day, profile, allowed_exercises)
-            for day in plan.days
-        ]
+        sanitized_days: list[LLMWorkoutDaySchema] = []
+        for idx, day in enumerate(plan.days, start=1):
+            day.day_number = idx
+            sanitized_days.append(
+                self._validate_and_sanitize_day(day, profile, allowed_exercises)
+            )
         plan.days = sanitized_days
+        plan.split_name = plan.split_name[:100]
         return plan
 
     def _validate_and_sanitize_day(

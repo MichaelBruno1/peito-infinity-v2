@@ -241,3 +241,36 @@ def test_workout_generation_respects_exclusions_cardio_format_and_single_day_reg
     day_2_after_ids = [e["exercise_id"] for e in updated_plan["days"][1]["exercises"]]
     assert day_2_before[0]["exercise_id"] not in day_2_after_ids
     assert cardio_regex.match(updated_plan["days"][1]["cardio_display_text"])
+
+
+def test_workout_generation_for_both_genders_all_goals_and_days():
+    client, _ = create_test_client()
+
+    for gender in ("MASCULINO", "FEMININO"):
+        for goal in ("EMAGRECIMENTO", "HIPERTROFIA", "FORCA"):
+            for days in (1, 2, 3, 4, 5, 6, 7):
+                prof_resp = client.post(
+                    "/api/v1/profiles",
+                    json={
+                        "name": f"Perfil {gender} {days}d",
+                        "gender": gender,
+                        "weight_kg": 70.0,
+                        "height_cm": 170.0,
+                        "fitness_level": "INTERMEDIARIO",
+                        "goal": goal,
+                        "available_time_minutes": 60,
+                        "days_per_week": days,
+                    },
+                )
+                assert prof_resp.status_code == 201
+                pid = prof_resp.json()["id"]
+
+                gen_resp = client.post(
+                    f"/api/v1/profiles/{pid}/workouts/generate-full",
+                    json={"excluded_exercise_ids": []},
+                )
+                assert gen_resp.status_code == 201
+                plan = gen_resp.json()
+                assert len(plan["days"]) == days
+                assert len(plan["split_name"]) <= 100
+
