@@ -37,6 +37,11 @@ const LEVEL_LABELS = {
   AVANCADO: 'Avançado',
 };
 
+const GENDER_LABELS = {
+  MASCULINO: 'Masculino',
+  FEMININO: 'Feminino',
+};
+
 export default function ProfileSelectorView({
   profiles,
   isLoading = false,
@@ -54,20 +59,9 @@ export default function ProfileSelectorView({
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-orange-950/40 border border-slate-800 p-6 sm:p-10 shadow-2xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-400 text-xs font-semibold">
-              <Database className="w-3.5 h-3.5" />
-              <span>
-                Rede Doméstica Privada • {exercisesCount || 89} Exercícios no PostgreSQL • Sem Login
-              </span>
-            </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
               Quem vai treinar hoje no <span className="text-orange-500">Peito Infinity</span>?
             </h1>
-            <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-              Selecione seu perfil ou crie um novo diretamente abaixo. Nosso Agente LLM Especialista
-              monta treinos sob medida respeitando seu tempo disponível, objetivo e os exercícios que
-              você preferir excluir.
-            </p>
           </div>
 
           <button
@@ -195,6 +189,9 @@ export default function ProfileSelectorView({
                       >
                         <GoalIcon className="w-3.5 h-3.5" />
                         {goalMeta.label}
+                      </span>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300">
+                        {GENDER_LABELS[profile.gender] || 'Masculino'}
                       </span>
                       <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300">
                         {LEVEL_LABELS[profile.fitness_level] || profile.fitness_level}

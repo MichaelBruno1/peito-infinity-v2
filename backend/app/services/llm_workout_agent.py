@@ -34,9 +34,12 @@ REGRAS INEGOCIÁVEIS:
      4º Core / Finalizador (9: Abdômen e Core)
 3. ORDEM BIOMECÂNICA DENTRO DE CADA GRUPO MUSCULAR: Dentro do bloco de cada músculo, comece pelos exercícios de complexidade ALTA, depois MEDIA, e finalize aquele músculo com os isoladores de complexidade BAIXA e alta eficiência.
 4. ANTI-REDUNDÂNCIA: Não repita o mesmo exercício nem coloque dois exercícios com exatamente o mesmo padrão biomecânico no mesmo dia.
-5. REGRA DO CARDIO: Informe apenas o tempo em minutos em `cardio_minutes` (ex: 30 ou 40) e em `cardio_display_text` informe exatamente "{X} min de cardio" (exemplo: "40 min de cardio").
-6. LIMITE DE TEMPO: A duração total estimada (`estimated_duration_minutes`) somando musculação e cardio não pode ultrapassar `available_time_minutes` do perfil.
-7. FORMATO DE SAÍDA: Responda EXCLUSIVAMENTE com um objeto JSON válido seguindo exatamente o formato solicitado, sem blocos markdown extras.
+5. ADAPTAÇÃO POR SEXO DO PERFIL (`MASCULINO` vs `FEMININO`):
+   - `FEMININO`: Priorize maior volume e frequência proporcional para membros inferiores, cadeia posterior e glúteos (Grupos 3 e 4: Elevação Pélvica, Levantamento Terra Romeno/RDL, Stiff, Agachamento Búlgaro, Agachamento Livre/Hack/Sumô, Passada/Afundo, Cadeira Abdutora, Glúteo na Polia, Cadeira/Mesa Flexora), combinados com treino equilibrado de superiores (Costas/Puxadas para linha de cintura, Deltoides, Tríceps/Bíceps e Core/Abdômen).
+   - `MASCULINO`: Priorize desenvolvimento simétrico e denso de tronco e membros superiores (Grupos 1, 2, 5, 6 e 7: Supinos, Desenvolvimento, Barra Fixa/Puxadas, Remadas, Paralelas, Elevação Lateral, Roscas e Tríceps) aliado a uma base sólida de membros inferiores (Grupos 3, 4 e 8).
+6. REGRA DO CARDIO: Informe apenas o tempo em minutos em `cardio_minutes` (ex: 30 ou 40) e em `cardio_display_text` informe exatamente "{X} min de cardio" (exemplo: "40 min de cardio").
+7. LIMITE DE TEMPO: A duração total estimada (`estimated_duration_minutes`) somando musculação e cardio não pode ultrapassar `available_time_minutes` do perfil.
+8. FORMATO DE SAÍDA: Responda EXCLUSIVAMENTE com um objeto JSON válido seguindo exatamente o formato solicitado, sem blocos markdown extras.
 """
 
 
@@ -217,6 +220,293 @@ SPLIT_TEMPLATES: dict[int, tuple[str, list[tuple[str, str, list[int]]]]] = {
         ],
     ),
 }
+
+FEMALE_SPLIT_TEMPLATES: dict[int, tuple[str, list[tuple[str, str, list[int]]]]] = {
+    1: (
+        "Full Body Feminino — Ênfase Inferiores, Glúteos e Core (1 Dia/Semana)",
+        [
+            (
+                "Dia 1 — Full Body (Ênfase Glúteos, Pernas, Costas, Ombros e Core)",
+                "Quadríceps, Glúteos, Posterior, Costas, Ombros e Abdômen",
+                [3, 3, 4, 4, 2, 5, 7, 9],
+            ),
+        ],
+    ),
+    2: (
+        "Full Body A/B Feminino — Foco Inferiores e Definição Superior (2 Dias/Semana)",
+        [
+            (
+                "Dia 1 — Full Body A (Ênfase Quadríceps, Glúteos, Costas e Ombros)",
+                "Quadríceps, Glúteos, Dorsais, Deltoides e Abdômen",
+                [3, 3, 4, 2, 5, 7, 9],
+            ),
+            (
+                "Dia 2 — Full Body B (Ênfase Glúteos, Posterior, Superiores e Core)",
+                "Glúteos, Isquiotibiais, Quadríceps, Costas, Peito/Bíceps e Panturrilhas",
+                [4, 4, 4, 3, 2, 1, 6, 8],
+            ),
+        ],
+    ),
+    3: (
+        "ABA — Inferiores (Quadríceps/Glúteos) + Superiores + Glúteos/Posterior (3 Dias/Semana)",
+        [
+            (
+                "Dia 1 — Treino A: Inferiores (Foco Quadríceps, Glúteos e Panturrilhas)",
+                "Quadríceps, Glúteo Máximo/Médio e Panturrilhas",
+                [3, 3, 3, 4, 4, 8, 9],
+            ),
+            (
+                "Dia 2 — Treino B: Superiores Completos e Core (Costas, Ombros, Peito e Braços)",
+                "Dorsais, Deltoides, Peitoral, Tríceps, Bíceps e Abdômen",
+                [1, 2, 2, 5, 5, 6, 7, 9],
+            ),
+            (
+                "Dia 3 — Treino C: Inferiores (Foco Glúteos, Posterior de Coxa e Core)",
+                "Glúteo Máximo, Glúteo Médio, Isquiotibiais, Quadríceps e Core",
+                [3, 4, 4, 4, 4, 8, 9],
+            ),
+        ],
+    ),
+    4: (
+        "Lower / Upper 2x Feminino — Ênfase Glúteos, Pernas e Linha de Cintura (4 Dias/Semana)",
+        [
+            (
+                "Dia 1 — Lower A (Inferiores: Foco Quadríceps e Glúteos)",
+                "Quadríceps, Glúteo Máximo e Panturrilhas",
+                [3, 3, 3, 4, 4, 8, 9],
+            ),
+            (
+                "Dia 2 — Upper A (Superiores: Costas, Deltoides, Peito e Tríceps)",
+                "Dorsais, Parte Superior das Costas, Ombros, Peitoral e Tríceps",
+                [1, 2, 2, 5, 5, 7, 9],
+            ),
+            (
+                "Dia 3 — Lower B (Inferiores: Foco Glúteos e Posterior de Coxa)",
+                "Glúteo Máximo, Glúteo Médio, Isquiotibiais e Quadríceps",
+                [3, 4, 4, 4, 4, 8, 9],
+            ),
+            (
+                "Dia 4 — Upper B & Core (Superiores: Dorsais, Ombros, Bíceps e Abdômen)",
+                "Costas, Deltoide Lateral/Posterior, Bíceps, Tríceps e Core",
+                [2, 2, 5, 5, 6, 7, 9, 9],
+            ),
+        ],
+    ),
+    5: (
+        "3x Inferiores (Quadríceps / Glúteos / Posterior) + 2x Superiores (5 Dias/Semana)",
+        [
+            (
+                "Dia 1 — Lower A (Foco Quadríceps e Glúteos)",
+                "Quadríceps, Glúteo Máximo, Adutores e Panturrilhas",
+                [3, 3, 3, 3, 4, 8],
+            ),
+            (
+                "Dia 2 — Upper A (Foco Costas, Ombros e Tríceps)",
+                "Dorsais, Romboides, Deltoides, Peitoral e Tríceps",
+                [1, 2, 2, 5, 5, 7, 9],
+            ),
+            (
+                "Dia 3 — Lower B (Foco Posterior de Coxa e Glúteos)",
+                "Isquiotibiais, Glúteo Máximo/Médio e Core",
+                [4, 4, 4, 4, 3, 9],
+            ),
+            (
+                "Dia 4 — Upper B (Foco Deltoides, Costas, Bíceps e Abdômen)",
+                "Costas, Deltoide Lateral/Posterior, Bíceps e Core",
+                [2, 2, 5, 5, 6, 6, 9],
+            ),
+            (
+                "Dia 5 — Lower C (Foco Glúteos Completo, Quadríceps e Panturrilhas)",
+                "Glúteo Máximo, Glúteo Médio, Quadríceps, Posterior e Panturrilhas",
+                [3, 3, 4, 4, 4, 8, 9],
+            ),
+        ],
+    ),
+    6: (
+        "Lower / Upper 3x Feminino — Alta Frequência de Glúteos e Inferiores (6 Dias/Semana)",
+        [
+            (
+                "Dia 1 — Lower A (Foco Quadríceps e Glúteos)",
+                "Quadríceps, Glúteo Máximo e Panturrilhas",
+                [3, 3, 3, 4, 8, 9],
+            ),
+            (
+                "Dia 2 — Upper A (Foco Costas, Ombros e Peito)",
+                "Dorsais, Deltoides, Peitoral e Tríceps",
+                [1, 2, 2, 5, 5, 7],
+            ),
+            (
+                "Dia 3 — Lower B (Foco Posterior de Coxa e Glúteos)",
+                "Isquiotibiais, Glúteo Máximo/Médio e Core",
+                [4, 4, 4, 3, 8, 9],
+            ),
+            (
+                "Dia 4 — Upper B (Foco Deltoides, Costas e Braços)",
+                "Costas Superiores, Deltoide Lateral/Posterior, Bíceps e Tríceps",
+                [2, 2, 5, 5, 6, 7],
+            ),
+            (
+                "Dia 5 — Lower C (Foco Glúteos Isolados, Quadríceps e Posterior)",
+                "Glúteo Máximo, Glúteo Médio, Quadríceps e Panturrilhas",
+                [3, 3, 4, 4, 4, 8],
+            ),
+            (
+                "Dia 6 — Upper C & Core (Condicionamento Superior e Estabilização Abdominal)",
+                "Dorsais, Ombros, Bíceps, Tríceps e Abdômen Completo",
+                [2, 5, 6, 7, 9, 9],
+            ),
+        ],
+    ),
+    7: (
+        "Lower / Upper 3x Feminino + Core & Mobilidade (7 Dias/Semana)",
+        [
+            (
+                "Dia 1 — Lower A (Foco Quadríceps e Glúteos)",
+                "Quadríceps, Glúteo Máximo e Panturrilhas",
+                [3, 3, 3, 4, 8, 8],
+            ),
+            (
+                "Dia 2 — Upper A (Foco Costas, Ombros e Peito)",
+                "Dorsais, Deltoides, Peitoral e Tríceps",
+                [1, 2, 2, 5, 5, 7],
+            ),
+            (
+                "Dia 3 — Lower B (Foco Posterior de Coxa e Glúteos)",
+                "Isquiotibiais, Glúteo Máximo e Glúteo Médio",
+                [4, 4, 4, 3, 8, 9],
+            ),
+            (
+                "Dia 4 — Upper B (Foco Deltoides, Costas e Braços)",
+                "Costas, Deltoide Lateral/Posterior, Bíceps e Tríceps",
+                [2, 2, 5, 5, 6, 7],
+            ),
+            (
+                "Dia 5 — Lower C (Foco Glúteos Completo e Quadríceps)",
+                "Glúteo Máximo, Glúteo Médio, Quadríceps e Posterior",
+                [3, 3, 4, 4, 4, 8],
+            ),
+            (
+                "Dia 6 — Upper C (Tonificação Superior: Costas, Ombros e Braços)",
+                "Dorsais, Deltoides, Bíceps e Tríceps",
+                [2, 2, 5, 6, 7, 9],
+            ),
+            (
+                "Dia 7 — Core, Abdômen, Lombar e Panturrilhas",
+                "Panturrilhas/Tibial, Abdômen Completo, Oblíquos e Lombar",
+                [8, 8, 9, 9, 9],
+            ),
+        ],
+    ),
+}
+
+
+def _get_profile_gender(profile: Profile) -> str:
+    raw = getattr(profile, "gender", None) or "MASCULINO"
+    return str(raw).upper().strip()
+
+
+def _get_split_templates_for_profile(
+    profile: Profile,
+) -> tuple[str, list[tuple[str, str, list[int]]]]:
+    days_count = profile.days_per_week
+    if _get_profile_gender(profile) == "FEMININO":
+        return FEMALE_SPLIT_TEMPLATES.get(days_count, FEMALE_SPLIT_TEMPLATES[3])
+    return SPLIT_TEMPLATES.get(days_count, SPLIT_TEMPLATES[3])
+
+
+def _gender_exercise_preference_bonus(ex: Exercise, gender: str) -> float:
+    """
+    Ajusta a prioridade de escolha dos exercícios de acordo com o sexo do perfil,
+    preservando a eficiência biomecânica e respeitando a lista de exercícios permitidos.
+    """
+    name_lower = ex.popular_name.lower()
+    primary_lower = ex.primary_muscle.lower()
+
+    if gender == "FEMININO":
+        female_preferred_keywords = (
+            "elevação pélvica",
+            "terra romeno",
+            "stiff",
+            "terra sumô",
+            "búlgaro",
+            "passada",
+            "avanço",
+            "afundo",
+            "glúteo na polia",
+            "coice na polia",
+            "cadeira abdutora",
+            "cadeira adutora",
+            "cadeira flexora",
+            "mesa flexora",
+            "flexora em pé",
+            "agachamento hack",
+            "agachamento livre",
+            "leg press",
+            "agachamento no smith",
+            "agachamento goblet",
+            "puxada alta",
+            "remada baixa",
+            "remada máquina",
+            "elevação lateral",
+            "face pull",
+            "crucifixo inverso",
+            "desenvolvimento com halteres",
+            "supino inclinado com halteres",
+            "supino máquina",
+            "peck deck",
+            "tríceps corda",
+            "tríceps pulley",
+            "prancha",
+            "abdominal",
+        )
+        female_deprioritized_keywords = (
+            "encolhimento de ombros",
+            "supino declinado",
+            "paralelas",
+            "flexão de punho",
+            "rosca inversa",
+        )
+        bonus = 0.0
+        if any(k in name_lower for k in female_preferred_keywords):
+            bonus += 0.75
+        if "glúteo" in primary_lower:
+            bonus += 0.55
+        if any(k in name_lower for k in female_deprioritized_keywords):
+            bonus -= 0.85
+        return bonus
+
+    # MASCULINO
+    male_preferred_keywords = (
+        "supino reto",
+        "supino inclinado",
+        "paralelas",
+        "crucifixo na polia",
+        "barra fixa",
+        "remada curvada",
+        "remada cavalinho",
+        "puxada alta",
+        "remada unilateral",
+        "desenvolvimento",
+        "elevação lateral",
+        "encolhimento",
+        "rosca direta",
+        "rosca inclinada",
+        "rosca scott",
+        "rosca martelo",
+        "tríceps francês",
+        "tríceps testa",
+        "tríceps pulley",
+        "agachamento livre",
+        "agachamento hack",
+        "leg press",
+        "terra romeno",
+        "stiff",
+        "cadeira extensora",
+        "cadeira flexora",
+    )
+    if any(k in name_lower for k in male_preferred_keywords):
+        return 0.55
+    return 0.0
 
 
 EXTERNAL_LLM_PROVIDERS = {
@@ -504,8 +794,8 @@ class WorkoutLLMAgent:
         profile: Profile,
         allowed_exercises: Sequence[Exercise],
     ) -> LLMWorkoutPlanSchema:
-        days_count = profile.days_per_week
-        split_name, day_templates = SPLIT_TEMPLATES[days_count]
+        split_name, day_templates = _get_split_templates_for_profile(profile)
+        gender = _get_profile_gender(profile)
 
         goal_labels = {
             "EMAGRECIMENTO": "Emagrecimento e Densidade Metabólica",
@@ -516,6 +806,10 @@ class WorkoutLLMAgent:
             "INICIANTE": "Iniciante",
             "INTERMEDIARIO": "Intermediário",
             "AVANCADO": "Avançado",
+        }
+        gender_labels = {
+            "MASCULINO": "Masculino",
+            "FEMININO": "Feminino",
         }
 
         used_recently_across_week: set[uuid.UUID] = set()
@@ -536,9 +830,9 @@ class WorkoutLLMAgent:
             generated_days.append(day_schema)
 
         specialist_notes = (
-            f"Planejamento {split_name} otimizado pelo Agente Especialista para "
-            f"{level_labels.get(profile.fitness_level, profile.fitness_level)} com foco em "
-            f"{goal_labels.get(profile.goal, profile.goal)}. "
+            f"Planejamento {split_name} otimizado pelo Agente Especialista para perfil "
+            f"{gender_labels.get(gender, gender)} ({level_labels.get(profile.fitness_level, profile.fitness_level)}) "
+            f"com foco em {goal_labels.get(profile.goal, profile.goal)}. "
             f"Sessões dimensionadas para até {profile.available_time_minutes} min, "
             f"ordenadas do maior para o menor grupo muscular e por complexidade biomecânica."
         )
@@ -557,8 +851,7 @@ class WorkoutLLMAgent:
         allowed_exercises: Sequence[Exercise],
         avoid_exercise_ids: set[uuid.UUID],
     ) -> LLMWorkoutDaySchema:
-        days_count = profile.days_per_week
-        _, day_templates = SPLIT_TEMPLATES.get(days_count, SPLIT_TEMPLATES[3])
+        _, day_templates = _get_split_templates_for_profile(profile)
         template_idx = min(max(day_number - 1, 0), len(day_templates) - 1)
         default_title, default_targets, group_slots = day_templates[template_idx]
 
@@ -632,7 +925,12 @@ class WorkoutLLMAgent:
             fresh_candidates = [c for c in candidates if c.id not in prefer_avoid_ids]
             pool = fresh_candidates if fresh_candidates else candidates
 
-            pool.sort(key=lambda x: float(x.efficiency_score), reverse=True)
+            profile_gender = _get_profile_gender(profile)
+            pool.sort(
+                key=lambda x: float(x.efficiency_score)
+                + _gender_exercise_preference_bonus(x, profile_gender),
+                reverse=True,
+            )
             top_window = pool[: min(3, len(pool))]
             chosen = random.choice(top_window)
 
@@ -809,14 +1107,24 @@ class WorkoutLLMAgent:
                 profile.goal, profile.fitness_level, profile.available_time_minutes
             )
         )
-        split_suggestion, _ = SPLIT_TEMPLATES[profile.days_per_week]
+        split_suggestion, _ = _get_split_templates_for_profile(profile)
+        profile_gender = _get_profile_gender(profile)
+        gender_guidance = (
+            "Perfil FEMININO: priorize maior ênfase em membros inferiores, glúteos e cadeia posterior "
+            "(Elevação Pélvica, RDL/Stiff, Agachamento Búlgaro, Agachamento Livre/Hack, Passada, Abdutora, "
+            "Flexoras) combinada com superiores equilibrados (Costas/Puxadas, Deltoides, Braços e Core)."
+            if profile_gender == "FEMININO"
+            else "Perfil MASCULINO: priorize desenvolvimento denso e simétrico de superiores "
+            "(Peitoral, Costas, Deltoides, Bíceps e Tríceps) combinado com base sólida de inferiores."
+        )
 
         user_prompt = (
             f"Monte um plano de treino semanal completo ({profile.days_per_week} dias) em JSON.\n"
-            f"Perfil: Nome={profile.name}, Peso={profile.weight_kg}kg, Altura={profile.height_cm}cm, "
-            f"Nível={profile.fitness_level}, Objetivo={profile.goal}, "
+            f"Perfil: Nome={profile.name}, Sexo={profile_gender}, Peso={profile.weight_kg}kg, "
+            f"Altura={profile.height_cm}cm, Nível={profile.fitness_level}, Objetivo={profile.goal}, "
             f"Tempo disponível por dia={profile.available_time_minutes} min, "
             f"Dias na semana={profile.days_per_week} (Sugestão de divisão: {split_suggestion}).\n"
+            f"Diretriz por sexo do perfil: {gender_guidance}\n"
             f"Recomendação por dia: cerca de {ex_count_rec} exercícios ({sets_rec} séries de '{reps_rec}', "
             f"descanso {rest_rec}s) + {cardio_rec} min de cardio ('{cardio_rec} min de cardio').\n\n"
             f"Catálogo permitido (`allowed_exercises`):\n"
@@ -885,10 +1193,12 @@ class WorkoutLLMAgent:
             f"Dia {d.day_number}: {d.day_title} ({d.target_muscles})" for d in other_days
         ]
 
+        profile_gender = _get_profile_gender(profile)
         user_prompt = (
             f"Gere um NOVO treino APENAS para o Dia {day_number} em JSON.\n"
-            f"Perfil: Nome={profile.name}, Nível={profile.fitness_level}, Objetivo={profile.goal}, "
-            f"Tempo disponível={profile.available_time_minutes} min.\n"
+            f"Perfil: Nome={profile.name}, Sexo={profile_gender}, Nível={profile.fitness_level}, "
+            f"Objetivo={profile.goal}, Tempo disponível={profile.available_time_minutes} min.\n"
+            f"Considere o sexo ({profile_gender}) na seleção biomecânica dos exercícios.\n"
             f"Título atual do Dia {day_number}: '{current_day.day_title if current_day else f'Dia {day_number}'}'.\n"
             f"Músculos foco do Dia {day_number}: '{current_day.target_muscles if current_day else 'Geral'}'.\n"
             f"Exercícios anteriores deste dia (procure variar os exercícios mantendo os mesmos grupos musculares): {prev_names}.\n"

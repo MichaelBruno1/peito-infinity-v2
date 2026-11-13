@@ -59,6 +59,7 @@ def create_profile(
 ) -> ProfileResponse:
     profile = Profile(
         name=payload.name,
+        gender=payload.gender,
         weight_kg=Decimal(str(payload.weight_kg)),
         height_cm=Decimal(str(payload.height_cm)),
         fitness_level=payload.fitness_level,
@@ -89,6 +90,7 @@ def update_profile(
 ) -> ProfileResponse:
     profile = get_profile_or_404(db, profile_id)
     profile.name = payload.name
+    profile.gender = payload.gender
     profile.weight_kg = Decimal(str(payload.weight_kg))
     profile.height_cm = Decimal(str(payload.height_cm))
     profile.fitness_level = payload.fitness_level

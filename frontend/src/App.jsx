@@ -171,13 +171,6 @@ export default function App() {
               </span>
             </div>
           </button>
-
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300">
-              <Wifi className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Rede Doméstica Privada (Sem Login)</span>
-            </div>
-          </div>
         </div>
       </header>
 

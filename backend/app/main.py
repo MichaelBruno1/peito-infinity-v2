@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import Base, SessionLocal, engine, ensure_database_exists
+from app.database import Base, SessionLocal, engine, ensure_database_exists, ensure_schema_columns
 from app.routers import exercises, health, profiles, workouts
 from app.services.seed_service import seed_exercises_if_empty
 
@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(_app: FastAPI):
     ensure_database_exists()
     Base.metadata.create_all(bind=engine)
+    ensure_schema_columns()
     with SessionLocal() as db:
         seeded = seed_exercises_if_empty(db)
         if seeded > 0:

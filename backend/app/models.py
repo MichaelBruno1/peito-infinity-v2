@@ -29,6 +29,7 @@ def utc_now() -> datetime:
 class Profile(Base):
     __tablename__ = "profiles"
     __table_args__ = (
+        CheckConstraint("gender IN ('MASCULINO', 'FEMININO')", name="ck_profiles_gender"),
         CheckConstraint("weight_kg >= 25.0 AND weight_kg <= 300.0", name="ck_profiles_weight_kg"),
         CheckConstraint("height_cm >= 100.0 AND height_cm <= 250.0", name="ck_profiles_height_cm"),
         CheckConstraint(
@@ -51,6 +52,9 @@ class Profile(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(80), nullable=False)
+    gender: Mapped[str] = mapped_column(
+        String(15), default="MASCULINO", server_default="MASCULINO", nullable=False
+    )
     weight_kg: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
     height_cm: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
     fitness_level: Mapped[str] = mapped_column(String(20), nullable=False)

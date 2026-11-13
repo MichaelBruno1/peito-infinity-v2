@@ -1,6 +1,6 @@
 from collections.abc import Generator
 import logging
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
@@ -50,6 +50,28 @@ def ensure_database_exists() -> None:
         admin_engine.dispose()
     except Exception as exc:
         logger.warning("Could not verify/auto-create database '%s': %s", settings.db_name, exc)
+
+
+def ensure_schema_columns() -> None:
+    """
+    Garante que novas colunas adicionadas ao modelo (como `profiles.gender`)
+    existam em bancos PostgreSQL/SQLite já criados anteriormente.
+    """
+    try:
+        inspector = inspect(engine)
+        if "profiles" in inspector.get_table_names():
+            existing_cols = {col["name"] for col in inspector.get_columns("profiles")}
+            if "gender" not in existing_cols:
+                logger.info("Adding missing column 'gender' to 'profiles' table...")
+                with engine.begin() as conn:
+                    conn.execute(
+                        text(
+                            "ALTER TABLE profiles "
+                            "ADD COLUMN gender VARCHAR(15) NOT NULL DEFAULT 'MASCULINO'"
+                        )
+                    )
+    except Exception as exc:
+        logger.warning("Could not verify/update schema columns: %s", exc)
 
 
 def get_db() -> Generator[Session, None, None]:

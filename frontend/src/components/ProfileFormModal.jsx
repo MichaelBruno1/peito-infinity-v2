@@ -1,6 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { X, User, Scale, Ruler, Flame, Dumbbell, Zap, Clock, Calendar } from 'lucide-react';
 
+const GENDERS = [
+  {
+    value: 'MASCULINO',
+    label: 'Masculino',
+    desc: 'Ênfase proporcional em superiores, tronco e base de inferiores',
+  },
+  {
+    value: 'FEMININO',
+    label: 'Feminino',
+    desc: 'Ênfase em membros inferiores, glúteos, posterior e linha de cintura',
+  },
+];
+
 const FITNESS_LEVELS = [
   { value: 'INICIANTE', label: 'Iniciante', desc: 'Iniciando ou retornando à academia' },
   { value: 'INTERMEDIARIO', label: 'Intermediário', desc: 'Treina regularmente há mais de 6 meses' },
@@ -31,6 +44,7 @@ const GOALS = [
 export default function ProfileFormModal({ isOpen, onClose, onSubmit, initialData, isSubmitting }) {
   const [form, setForm] = useState({
     name: '',
+    gender: 'MASCULINO',
     weight_kg: 75,
     height_cm: 175,
     fitness_level: 'INTERMEDIARIO',
@@ -44,6 +58,7 @@ export default function ProfileFormModal({ isOpen, onClose, onSubmit, initialDat
     if (initialData) {
       setForm({
         name: initialData.name || '',
+        gender: initialData.gender || 'MASCULINO',
         weight_kg: initialData.weight_kg ?? 75,
         height_cm: initialData.height_cm ?? 175,
         fitness_level: initialData.fitness_level || 'INTERMEDIARIO',
@@ -54,6 +69,7 @@ export default function ProfileFormModal({ isOpen, onClose, onSubmit, initialDat
     } else {
       setForm({
         name: '',
+        gender: 'MASCULINO',
         weight_kg: 75,
         height_cm: 175,
         fitness_level: 'INTERMEDIARIO',
@@ -77,6 +93,7 @@ export default function ProfileFormModal({ isOpen, onClose, onSubmit, initialDat
     try {
       await onSubmit({
         name: form.name.trim(),
+        gender: form.gender,
         weight_kg: Number(form.weight_kg),
         height_cm: Number(form.height_cm),
         fitness_level: form.fitness_level,
@@ -137,6 +154,33 @@ export default function ProfileFormModal({ isOpen, onClose, onSubmit, initialDat
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-colors"
               />
+            </div>
+          </div>
+
+          {/* Sexo */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Sexo
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {GENDERS.map((g) => {
+                const active = form.gender === g.value;
+                return (
+                  <button
+                    key={g.value}
+                    type="button"
+                    onClick={() => setForm({ ...form, gender: g.value })}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      active
+                        ? 'bg-orange-500/15 border-orange-500 text-white shadow-sm'
+                        : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="font-semibold text-sm">{g.label}</div>
+                    <div className="text-xs text-slate-400 mt-0.5">{g.desc}</div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

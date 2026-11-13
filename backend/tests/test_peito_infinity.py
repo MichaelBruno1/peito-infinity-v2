@@ -86,6 +86,7 @@ def test_profile_crud_and_editability_without_authentication():
 
     create_payload = {
         "name": "Carlos Silva",
+        "gender": "MASCULINO",
         "weight_kg": 88.0,
         "height_cm": 180.0,
         "fitness_level": "INTERMEDIARIO",
@@ -98,6 +99,7 @@ def test_profile_crud_and_editability_without_authentication():
     profile = resp.json()
     profile_id = profile["id"]
     assert profile["name"] == "Carlos Silva"
+    assert profile["gender"] == "MASCULINO"
     assert profile["goal"] == "EMAGRECIMENTO"
     assert profile["available_time_minutes"] == 90
     assert profile["days_per_week"] == 4
@@ -105,6 +107,7 @@ def test_profile_crud_and_editability_without_authentication():
     # Edição de perfil
     update_payload = {
         "name": "Carlos Silva Editado",
+        "gender": "FEMININO",
         "weight_kg": 84.0,
         "height_cm": 180.0,
         "fitness_level": "AVANCADO",
@@ -116,6 +119,7 @@ def test_profile_crud_and_editability_without_authentication():
     assert upd_resp.status_code == 200
     updated = upd_resp.json()
     assert updated["name"] == "Carlos Silva Editado"
+    assert updated["gender"] == "FEMININO"
     assert updated["weight_kg"] == 84.0
     assert updated["fitness_level"] == "AVANCADO"
     assert updated["goal"] == "HIPERTROFIA"
@@ -131,6 +135,7 @@ def test_workout_generation_respects_exclusions_cardio_format_and_single_day_reg
         "/api/v1/profiles",
         json={
             "name": "Marina Costa",
+            "gender": "FEMININO",
             "weight_kg": 68.5,
             "height_cm": 165.0,
             "fitness_level": "INTERMEDIARIO",
@@ -140,6 +145,7 @@ def test_workout_generation_respects_exclusions_cardio_format_and_single_day_reg
         },
     )
     profile_id = profile_resp.json()["id"]
+    assert profile_resp.json()["gender"] == "FEMININO"
 
     # Obtém catálogo de exercícios e seleciona 10 exercícios para EXCLUIR
     catalog = client.get("/api/v1/exercises").json()

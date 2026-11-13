@@ -109,6 +109,7 @@ def serialize_profile(db: Session, profile: Profile, include_workout: bool = Tru
     return ProfileResponse(
         id=profile.id,
         name=profile.name,
+        gender=getattr(profile, "gender", None) or "MASCULINO",  # type: ignore[arg-type]
         weight_kg=weight,
         height_cm=height,
         bmi=compute_bmi(weight, height),

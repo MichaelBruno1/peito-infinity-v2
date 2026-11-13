@@ -31,6 +31,11 @@ const LEVEL_LABELS = {
   AVANCADO: 'Avançado',
 };
 
+const GENDER_LABELS = {
+  MASCULINO: 'Masculino',
+  FEMININO: 'Feminino',
+};
+
 const COMPLEXITY_STYLE = {
   BAIXA: {
     label: '🟢 Complexidade Baixa',
@@ -122,6 +127,9 @@ export default function WorkoutDashboardView({
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-orange-500/15 text-orange-400 border border-orange-500/30">
                 <GoalIcon className="w-3.5 h-3.5" />
                 {goalMeta.label}
+              </span>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">
+                Sexo: {GENDER_LABELS[profile.gender] || 'Masculino'}
               </span>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">
                 Nível: {LEVEL_LABELS[profile.fitness_level] || profile.fitness_level}

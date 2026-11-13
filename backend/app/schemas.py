@@ -7,6 +7,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
+GenderLiteral = Literal["MASCULINO", "FEMININO"]
 FitnessLevelLiteral = Literal["INICIANTE", "INTERMEDIARIO", "AVANCADO"]
 GoalLiteral = Literal["EMAGRECIMENTO", "HIPERTROFIA", "FORCA"]
 ComplexityLiteral = Literal["BAIXA", "MEDIA", "ALTA"]
@@ -38,6 +39,7 @@ class ExerciseCatalogResponse(BaseModel):
 
 class ProfileCreateUpdateRequest(BaseModel):
     name: str = Field(..., min_length=2, max_length=80)
+    gender: GenderLiteral = "MASCULINO"
     weight_kg: float = Field(..., ge=25.0, le=300.0)
     height_cm: float = Field(..., ge=100.0, le=250.0)
     fitness_level: FitnessLevelLiteral
@@ -105,6 +107,7 @@ class WorkoutPlanResponse(BaseModel):
 class ProfileResponse(BaseModel):
     id: uuid.UUID
     name: str
+    gender: GenderLiteral = "MASCULINO"
     weight_kg: float
     height_cm: float
     bmi: float
